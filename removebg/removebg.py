@@ -1,11 +1,13 @@
 from __future__ import absolute_import
-import requests
+
 import logging
+
+import requests
 
 API_ENDPOINT = "https://api.remove.bg/v1.0/removebg"
 
-class RemoveBg(object):
 
+class RemoveBg(object):
     def __init__(self, api_key, error_log_file):
         self.__api_key = api_key
         logging.basicConfig(filename=error_log_file)
@@ -22,18 +24,29 @@ class RemoveBg(object):
             raise Exception("type_level argument wrong")
 
         if format not in ["jpg", "zip", "png", "auto"]:
-            raise Exception("format argument wrong") 
- 
+            raise Exception("format argument wrong")
+
         if channels not in ["rgba", "alpha"]:
-            raise Exception("channels argument wrong") 
-        
-    def remove_background_from_img_file(self, img_file_path, size="regular", 
-                                       type="auto", type_level="none", 
-                                       format="auto", roi="0 0 100% 100%", 
-                                       crop=None, scale="original", 
-                                       position="original", channels="rgba", 
-                                       shadow=False, semitransparency=True,
-                                       bg=None, bg_type=None, new_file_name="no-bg.png"):
+            raise Exception("channels argument wrong")
+
+    def remove_background_from_img_file(
+        self,
+        img_file_path,
+        size="regular",
+        type="auto",
+        type_level="none",
+        format="auto",
+        roi="0 0 100% 100%",
+        crop=None,
+        scale="original",
+        position="original",
+        channels="rgba",
+        shadow=False,
+        semitransparency=True,
+        bg=None,
+        bg_type=None,
+        new_file_name="no-bg.png",
+    ):
         """
         Removes the background given an image file and outputs the file as the original file name with "no_bg.png"
         appended to it.
@@ -56,50 +69,59 @@ class RemoveBg(object):
 
         self._check_arguments(size, type, type_level, format, channels)
 
-        img_file = open(img_file_path, 'rb')
-        files = {'image_file': img_file}
-        
+        img_file = open(img_file_path, "rb")
+        files = {"image_file": img_file}
+
         data = {
-            'size': size,
-            'type': type,
-            'type_level': type_level,
-            'format': format,
-            'roi': roi,
-            'crop': 'true' if crop else 'false',
-            'crop_margin': crop,
-            'scale': scale,
-            'position': position,
-            'channels': channels,
-            'add_shadow': "true" if shadow else 'false"',
-            'semitransparency': 'true' if semitransparency else 'false',
+            "size": size,
+            "type": type,
+            "type_level": type_level,
+            "format": format,
+            "roi": roi,
+            "crop": "true" if crop else "false",
+            "crop_margin": crop,
+            "scale": scale,
+            "position": position,
+            "channels": channels,
+            "add_shadow": "true" if shadow else 'false"',
+            "semitransparency": "true" if semitransparency else "false",
         }
 
-        if bg_type == 'path':
-            files['bg_image_file'] = open(bg, 'rb')
-        elif bg_type == 'color':
-            data['bg_color'] = bg 
-        elif bg_type == 'url':
-            data['bg_image_url'] = bg
+        if bg_type == "path":
+            files["bg_image_file"] = open(bg, "rb")
+        elif bg_type == "color":
+            data["bg_color"] = bg
+        elif bg_type == "url":
+            data["bg_image_url"] = bg
 
         # Open image file to send information post request and send the post request
         response = requests.post(
-            API_ENDPOINT,
-            files=files,
-            data=data,
-            headers={'X-Api-Key': self.__api_key})
+            API_ENDPOINT, files=files, data=data, headers={"X-Api-Key": self.__api_key}
+        )
         response.raise_for_status()
         self.__output_file__(response, img_file.name + "_no_bg.png")
 
         # Close original file
         img_file.close()
 
-    def remove_background_from_img_url(self, img_url, size="regular", 
-                                       type="auto", type_level="none", 
-                                       format="auto", roi="0 0 100% 100%", 
-                                       crop=None, scale="original", 
-                                       position="original", channels="rgba", 
-                                       shadow=False, semitransparency=True,
-                                       bg=None, bg_type=None, new_file_name="no-bg.png"):
+    def remove_background_from_img_url(
+        self,
+        img_url,
+        size="regular",
+        type="auto",
+        type_level="none",
+        format="auto",
+        roi="0 0 100% 100%",
+        crop=None,
+        scale="original",
+        position="original",
+        channels="rgba",
+        shadow=False,
+        semitransparency=True,
+        bg=None,
+        bg_type=None,
+        new_file_name="no-bg.png",
+    ):
         """
         Removes the background given an image URL and outputs the file as the given new file name.
         :param img_url: the URL to the image
@@ -122,45 +144,54 @@ class RemoveBg(object):
         self._check_arguments(size, type, type_level, format, channels)
 
         files = {}
-        
+
         data = {
-            'image_url': img_url,
-            'size': size,
-            'type': type,
-            'type_level': type_level,
-            'format': format,
-            'roi': roi,
-            'crop': 'true' if crop else 'false',
-            'crop_margin': crop,
-            'scale': scale,
-            'position': position,
-            'channels': channels,
-            'add_shadow': "true" if shadow else 'false"',
-            'semitransparency': 'true' if semitransparency else 'false',
+            "image_url": img_url,
+            "size": size,
+            "type": type,
+            "type_level": type_level,
+            "format": format,
+            "roi": roi,
+            "crop": "true" if crop else "false",
+            "crop_margin": crop,
+            "scale": scale,
+            "position": position,
+            "channels": channels,
+            "add_shadow": "true" if shadow else 'false"',
+            "semitransparency": "true" if semitransparency else "false",
         }
 
-        if bg_type == 'path':
-            files['bg_image_file'] = open(bg, 'rb')
-        elif bg_type == 'color':
-            data['bg_color'] = bg 
-        elif bg_type == 'url':
-            data['bg_image_url'] = bg
+        if bg_type == "path":
+            files["bg_image_file"] = open(bg, "rb")
+        elif bg_type == "color":
+            data["bg_color"] = bg
+        elif bg_type == "url":
+            data["bg_image_url"] = bg
 
         response = requests.post(
-            API_ENDPOINT,
-            data=data,
-            headers={'X-Api-Key': self.__api_key}
+            API_ENDPOINT, data=data, headers={"X-Api-Key": self.__api_key}
         )
         response.raise_for_status()
         self.__output_file__(response, new_file_name)
 
-    def remove_background_from_base64_img(self, base64_img, size="regular", 
-                                          type="auto", type_level="none", 
-                                          format="auto", roi="0 0 100% 100%", 
-                                          crop=None, scale="original", 
-                                          position="original", channels="rgba", 
-                                          shadow=False, semitransparency=True,
-                                          bg=None, bg_type=None, new_file_name="no-bg.png"):
+    def remove_background_from_base64_img(
+        self,
+        base64_img,
+        size="regular",
+        type="auto",
+        type_level="none",
+        format="auto",
+        roi="0 0 100% 100%",
+        crop=None,
+        scale="original",
+        position="original",
+        channels="rgba",
+        shadow=False,
+        semitransparency=True,
+        bg=None,
+        bg_type=None,
+        new_file_name="no-bg.png",
+    ):
         """
         Removes the background given a base64 image string and outputs the file as the given new file name.
         :param base64_img: the base64 image string
@@ -183,34 +214,32 @@ class RemoveBg(object):
         self._check_arguments(size, type, type_level, format, channels)
 
         files = {}
-        
+
         data = {
-            'image_file_b64': base64_img,
-            'size': size,
-            'type': type,
-            'type_level': type_level,
-            'format': format,
-            'roi': roi,
-            'crop': 'true' if crop else 'false',
-            'crop_margin': crop,
-            'scale': scale,
-            'position': position,
-            'channels': channels,
-            'add_shadow': "true" if shadow else 'false"',
-            'semitransparency': 'true' if semitransparency else 'false',
+            "image_file_b64": base64_img,
+            "size": size,
+            "type": type,
+            "type_level": type_level,
+            "format": format,
+            "roi": roi,
+            "crop": "true" if crop else "false",
+            "crop_margin": crop,
+            "scale": scale,
+            "position": position,
+            "channels": channels,
+            "add_shadow": "true" if shadow else 'false"',
+            "semitransparency": "true" if semitransparency else "false",
         }
 
-        if bg_type == 'path':
-            files['bg_image_file'] = open(bg, 'rb')
-        elif bg_type == 'color':
-            data['bg_color'] = bg 
-        elif bg_type == 'url':
-            data['bg_image_url'] = bg
+        if bg_type == "path":
+            files["bg_image_file"] = open(bg, "rb")
+        elif bg_type == "color":
+            data["bg_color"] = bg
+        elif bg_type == "url":
+            data["bg_image_url"] = bg
 
         response = requests.post(
-            API_ENDPOINT,
-            data=data,
-            headers={'X-Api-Key': self.__api_key}
+            API_ENDPOINT, data=data, headers={"X-Api-Key": self.__api_key}
         )
         response.raise_for_status()
         self.__output_file__(response, new_file_name)
@@ -218,7 +247,7 @@ class RemoveBg(object):
     def __output_file__(self, response, new_file_name):
         # If successful, write out the file
         if response.status_code == requests.codes.ok:
-            with open(new_file_name, 'wb') as removed_bg_file:
+            with open(new_file_name, "wb") as removed_bg_file:
                 removed_bg_file.write(response.content)
         # Otherwise, print out the error
         else:
